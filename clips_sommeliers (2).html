@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sommelier Sin Contexto</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:ital,wght@0,400;0,700;0,900;1,900&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #0a0a0f; color: #f0f0f0;
+  font-family: 'Montserrat', sans-serif;
+  min-height: 100vh; display: flex;
+  flex-direction: column; align-items: center;
+  justify-content: center; padding: 24px;
+}
+@keyframes borderSlide {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+.grad-bg {
+  background: linear-gradient(90deg, #f5a623, #ffd700, #ff6b00, #f5a623);
+  background-size: 300% 100%;
+  animation: borderSlide 3s linear infinite;
+}
+.grad-text {
+  background: linear-gradient(90deg, #f5a623, #ffd700, #ff6b00, #f5a623);
+  background-size: 300% 100%;
+  animation: borderSlide 3s linear infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.header { text-align: center; margin-bottom: 20px; width: 100%; max-width: 1100px; }
+.header-top { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 6px; }
+.header-line { flex: 1; height: 2px; max-width: 200px; }
+.header-label { font-size: 12px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+.main-title { font-family: 'Bebas Neue', cursive; font-size: 64px; letter-spacing: 4px; line-height: 1; color: #fff; }
+.main-card { width: 100%; max-width: 1100px; border-radius: 4px; padding: 3px; }
+.main-card-inner { background: #111118; border-radius: 2px; display: flex; }
+.video-col { flex: 1.4; display: flex; flex-direction: column; }
+.video-wrap { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden; }
+.video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+.video-placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; color: rgba(255,255,255,0.2); font-size: 14px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+.placeholder-icon { font-size: 48px; opacity: 0.3; }
+.video-wrap::before, .video-wrap::after { content: ''; position: absolute; width: 20px; height: 20px; z-index: 5; pointer-events: none; }
+.video-wrap::before { top:8px; left:8px; border-top:2px solid #f5a623; border-left:2px solid #f5a623; }
+.video-wrap::after  { bottom:8px; right:8px; border-bottom:2px solid #f5a623; border-right:2px solid #f5a623; }
+.info-col { width: 320px; flex-shrink: 0; padding: 20px; display: flex; flex-direction: column; gap: 14px; border-left: 1px solid rgba(255,255,255,0.06); }
+.info-tag { font-size: 10px; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.clip-title { font-family: 'Bebas Neue', cursive; font-size: 26px; line-height: 1.2; color: #fff; letter-spacing: 1px; word-break: break-word; }
+.clip-link a { font-size: 12px; font-weight: 700; color: #f5a623; text-decoration: none; letter-spacing: 1px; text-transform: uppercase; display: flex; align-items: center; gap: 6px; transition: opacity 0.2s; }
+.clip-link a:hover { opacity: 0.7; }
+.clip-link a::after { content: '↗'; font-size: 14px; }
+.clip-divider { height: 1px; background: rgba(255,255,255,0.06); }
+.clip-meta { display: flex; flex-direction: column; gap: 6px; }
+.meta-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: rgba(255,255,255,0.5); font-weight: 600; }
+.meta-row strong { color: rgba(255,255,255,0.85); font-weight: 700; }
+.meta-icon { font-size: 14px; width: 18px; text-align: center; }
+.views-num { font-family: 'Bebas Neue', cursive; font-size: 48px; line-height: 1; color: #fff; }
+.views-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: rgba(255,255,255,0.35); text-transform: uppercase; }
+.footer-bar { width: 100%; max-width: 1100px; display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+.btn-random { flex: 1; padding: 14px 24px; border: none; border-radius: 4px; cursor: pointer; font-family: 'Bebas Neue', cursive; font-size: 22px; letter-spacing: 3px; color: #000; position: relative; overflow: hidden; transition: transform 0.15s; }
+.btn-random:hover { transform: scale(1.02); }
+.btn-random:active { transform: scale(0.98); }
+.btn-random:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn-bg { position: absolute; inset: 0; background: linear-gradient(90deg, #f5a623, #ffd700, #ff6b00, #f5a623); background-size: 300% 100%; animation: borderSlide 3s linear infinite; }
+.btn-random span { position: relative; z-index: 1; }
+.clips-count-box { padding: 10px 20px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; text-align: center; white-space: nowrap; }
+.clips-count-num { font-family: 'Bebas Neue', cursive; font-size: 28px; color: #f5a623; line-height: 1; }
+.clips-count-label { font-size: 9px; font-weight: 700; letter-spacing: 2px; color: rgba(255,255,255,0.3); text-transform: uppercase; }
+.state-box { display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 60px; text-align: center; }
+.spinner { width: 40px; height: 40px; border: 3px solid rgba(245,166,35,0.2); border-top-color: #f5a623; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.btn-simple { padding: 14px 32px; border: none; border-radius: 4px; cursor: pointer; font-family: 'Bebas Neue', cursive; font-size: 20px; letter-spacing: 3px; color: #000; background: #f5a623; position: relative; overflow: hidden; }
+.btn-simple .btn-bg { position: absolute; inset: 0; }
+.btn-simple span { position: relative; z-index: 1; }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="state-auth" class="state-box hidden">
+  <div class="main-title" style="font-size:52px">SOMMELIER<br>SIN CONTEXTO</div>
+  <p style="color:rgba(255,255,255,0.4);font-size:14px;max-width:400px;line-height:1.6">Conectá tu cuenta de Twitch para cargar todos tus clips.</p>
+  <button class="btn-simple" onclick="startAuth()">
+    <div class="btn-bg grad-bg"></div>
+    <span>🔐 CONECTAR CON TWITCH</span>
+  </button>
+</div>
+
+<!-- LOADING -->
+<div id="state-loading" class="state-box">
+  <div class="spinner"></div>
+  <div style="font-size:13px;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase" id="loading-text">Iniciando...</div>
+</div>
+
+<!-- ERROR -->
+<div id="state-error" class="state-box hidden">
+  <div style="font-size:48px">⚠️</div>
+  <div style="font-family:'Bebas Neue',cursive;font-size:28px;letter-spacing:2px;color:#f5a623" id="error-msg">Error</div>
+  <button class="btn-simple" onclick="location.reload()">
+    <div class="btn-bg grad-bg"></div>
+    <span>REINTENTAR</span>
+  </button>
+</div>
+
+<!-- APP -->
+<div id="app" style="width:100%;max-width:1100px;display:none;flex-direction:column;align-items:center">
+  <div class="header">
+    <div class="header-top">
+      <div class="grad-bg header-line"></div>
+      <div class="header-label">SELECCIÓN ALEATORIA DE CLIPS <span class="grad-text">SOMMELIERS</span></div>
+      <div class="grad-bg header-line"></div>
+    </div>
+    <div class="main-title">SOMMELIER SIN CONTEXTO</div>
+  </div>
+
+  <div class="main-card grad-bg">
+    <div class="main-card-inner">
+      <div class="video-col">
+        <div class="video-wrap" id="video-wrap">
+          <div class="video-placeholder">
+            <div class="placeholder-icon">🎬</div>
+            <div>Seleccionando clip...</div>
+          </div>
+        </div>
+      </div>
+      <div class="info-col">
+        <div class="info-tag grad-text">CLIP SELECCIONADO</div>
+        <div class="clip-title" id="clip-title">—</div>
+        <div class="clip-link"><a id="clip-link" href="#" target="_blank">VER EN TWITCH</a></div>
+        <div class="clip-divider"></div>
+        <div class="clip-meta">
+          <div class="meta-row"><span class="meta-icon">👤</span>por <strong id="clip-creator">—</strong></div>
+          <div class="meta-row"><span class="meta-icon">📅</span><strong id="clip-date">—</strong></div>
+          <div class="meta-row"><span class="meta-icon">🎮</span><strong id="clip-game">—</strong></div>
+        </div>
+        <div class="clip-divider"></div>
+        <div>
+          <div class="views-num" id="clip-views">0</div>
+          <div class="views-label">REPRODUCCIONES</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bar">
+    <button class="btn-random" id="btn-random" onclick="loadRandom()">
+      <div class="btn-bg"></div>
+      <span>🎲 CLIP AL AZAR</span>
+    </button>
+    <div class="clips-count-box">
+      <div class="clips-count-num" id="clips-total">0</div>
+      <div class="clips-count-label">CLIPS TOTALES</div>
+    </div>
+  </div>
+</div>
+
+<script>
+var CLIENT_ID    = '53g9le66ktvp7zh59vktrbrryup1v9';
+var REDIRECT_URI = 'https://jotavieri.github.io/sommelier-clips/';
+var CHANNEL      = 'SommelierDeJuegos';
+var MONTHS       = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+
+var token    = null;
+var allClips = [];
+var lastIdx  = -1;
+
+/* ── UI ── */
+function showState(name) {
+  ['state-auth','state-loading','state-error'].forEach(function(id) {
+    document.getElementById(id).classList.toggle('hidden', id !== name);
+  });
+  var app = document.getElementById('app');
+  app.style.display = name === 'app' ? 'flex' : 'none';
+}
+
+function setLoadingText(t) {
+  document.getElementById('loading-text').textContent = t;
+}
+
+function showError(msg) {
+  document.getElementById('error-msg').textContent = msg;
+  showState('state-error');
+}
+
+/* ── AUTH ── */
+function startAuth() {
+  var url = 'https://id.twitch.tv/oauth2/authorize'
+    + '?client_id=' + CLIENT_ID
+    + '&redirect_uri=' + encodeURIComponent(REDIRECT_URI)
+    + '&response_type=token'
+    + '&scope=';
+  window.location.href = url;
+}
+
+function getTokenFromHash() {
+  var hash = (window.location.hash || '').substring(1);
+  var m    = hash.match(/access_token=([^&]+)/);
+  return m ? m[1] : null;
+}
+
+/* ── API ── */
+function api(url) {
+  return fetch(url, {
+    headers: {
+      'Authorization': 'Bearer ' + token,
+      'Client-Id': CLIENT_ID
+    }
+  }).then(function(r) {
+    if (r.status === 401) {
+      localStorage.removeItem('twitch_token');
+      throw new Error('Token expirado — reconectando...');
+    }
+    if (!r.ok) throw new Error('Error HTTP ' + r.status);
+    return r.json();
+  });
+}
+
+function getUserId() {
+  return api('https://api.twitch.tv/helix/users?login=' + CHANNEL)
+    .then(function(d) {
+      if (!d.data || !d.data[0]) throw new Error('Canal no encontrado');
+      return d.data[0].id;
+    });
+}
+
+function fetchAllClips(uid) {
+  var clips = [], cursor = null;
+  function page() {
+    var url = 'https://api.twitch.tv/helix/clips?broadcaster_id=' + uid + '&first=100';
+    if (cursor) url += '&after=' + cursor;
+    return api(url).then(function(d) {
+      clips = clips.concat(d.data || []);
+      setLoadingText('Cargando clips... ' + clips.length + ' encontrados');
+      if (d.pagination && d.pagination.cursor && (d.data || []).length === 100) {
+        cursor = d.pagination.cursor;
+        return page();
+      }
+      return clips;
+    });
+  }
+  return page();
+}
+
+/* ── CLIP ── */
+function loadRandom() {
+  if (!allClips.length) return;
+  var idx;
+  do { idx = Math.floor(Math.random() * allClips.length); }
+  while (idx === lastIdx && allClips.length > 1);
+  lastIdx = idx;
+  renderClip(allClips[idx]);
+}
+
+function renderClip(clip) {
+  var wrap = document.getElementById('video-wrap');
+  wrap.innerHTML = '';
+  var iframe      = document.createElement('iframe');
+  iframe.src      = 'https://clips.twitch.tv/embed?clip=' + clip.id
+    + '&parent=jotavieri.github.io&autoplay=true';
+  iframe.allowFullscreen = true;
+  iframe.allow    = 'autoplay';
+  wrap.appendChild(iframe);
+
+  document.getElementById('clip-title').textContent   = clip.title          || '—';
+  document.getElementById('clip-link').href           = clip.url             || '#';
+  document.getElementById('clip-creator').textContent = clip.creator_name    || '—';
+  document.getElementById('clip-views').textContent   = (clip.view_count||0).toLocaleString('es-AR');
+
+  if (clip.created_at) {
+    var d = new Date(clip.created_at);
+    document.getElementById('clip-date').textContent =
+      d.getDate() + ' de ' + MONTHS[d.getMonth()] + ' de ' + d.getFullYear();
+  }
+
+  document.getElementById('clip-game').textContent = '—';
+  if (clip.game_id) {
+    api('https://api.twitch.tv/helix/games?id=' + clip.game_id)
+      .then(function(d) {
+        document.getElementById('clip-game').textContent =
+          (d.data && d.data[0]) ? d.data[0].name : '—';
+      }).catch(function(){});
+  } else {
+    document.getElementById('clip-game').textContent = 'Sin juego';
+  }
+}
+
+/* ── INIT ── */
+(function init() {
+  // 1. Ver si viene token en el hash (redirect de Twitch)
+  var fromHash = getTokenFromHash();
+  if (fromHash) {
+    token = fromHash;
+    localStorage.setItem('twitch_token', token);
+    // Limpiar el hash de la URL
+    history.replaceState(null, '', window.location.pathname);
+  } else {
+    // 2. Intentar token guardado
+    token = localStorage.getItem('twitch_token');
+  }
+
+  if (!token) {
+    showState('state-auth');
+    return;
+  }
+
+  showState('state-loading');
+  setLoadingText('Conectando con Twitch...');
+
+  getUserId()
+    .then(function(uid) { return fetchAllClips(uid); })
+    .then(function(clips) {
+      if (!clips.length) { showError('No se encontraron clips'); return; }
+      allClips = clips;
+      document.getElementById('clips-total').textContent = clips.length.toLocaleString('es-AR');
+      showState('app');
+      loadRandom();
+    })
+    .catch(function(err) {
+      console.error(err);
+      if (err.message && err.message.indexOf('expirado') !== -1) {
+        localStorage.removeItem('twitch_token');
+        showState('state-auth');
+      } else {
+        showError(err.message || 'Error al cargar los clips');
+      }
+    });
+})();
+</script>
+</body>
+</html>
